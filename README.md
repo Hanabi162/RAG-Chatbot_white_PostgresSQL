@@ -13,16 +13,18 @@ Before starting, make sure you have the following installed:
 - [Ollama](https://ollama.com/) (for running a local LLM)  
 - Python 3.10+ and the following Python packages:
   - `psycopg2`
-  - `requests`
   - `numpy`
-  - `tqdm`
-  - `sentence-transformers` (for embeddings)
-  - `tkinter` (usually bundled with Python)
+  - `sentence-transformers`
+  - (`tkinter` is usually bundled with Python)
 
-You can install Python packages with:
+You can install the required Python packages with:
 ```bash
-pip install psycopg2 requests numpy tqdm sentence-transformers
+pip install psycopg2 numpy sentence-transformers
 ```
+
+> **Note:**  
+> - `requests` and `tqdm` are **not required** for this project based on the current codebase.
+> - Make sure PostgreSQL server is running and pgvector is properly installed before proceeding.
 
 ---
 
@@ -34,14 +36,19 @@ pip install psycopg2 requests numpy tqdm sentence-transformers
 
 ## 2. Install pgvector
 - **Docker**: Pull and run the [`pgvector/pgvector`](https://hub.docker.com/r/pgvector/pgvector/tags) image (bundles PostgreSQL and pgvector).  
-- **Manual**: Clone the [pgvector GitHub repository](https://github.com/pgvector/pgvector) and run `make && make install` to build and install the extension.  
+- **Manual**: Clone the [pgvector GitHub repository](https://github.com/pgvector/pgvector) and run:
+  ```bash
+  make
+  make install
+  ```
+  to build and install the extension.
 
 ## 3. Enable Extension and Define Schema
-- Enable the extension with:  
+- Enable the extension inside your database:
   ```sql
   CREATE EXTENSION IF NOT EXISTS vector;
   ```
-- Create a `documents` table:  
+- Create a `documents` table:
   ```sql
   CREATE TABLE documents (
     id SERIAL PRIMARY KEY,
@@ -52,15 +59,15 @@ pip install psycopg2 requests numpy tqdm sentence-transformers
 
 ## 4. RAG Workflow
 1. **Ingest**: Encode documents into 1024-dimensional float vectors and store them in the `documents` table.  
-2. **Query**: Encode a user’s question into a query vector.  
+2. **Query**: Encode a user's question into a query vector.  
 3. **Search**: Perform a nearest-neighbor search using SQL operators (`<->`, `<=>`, `<#>`, `<+>`) to find the top-k matching documents.  
-4. **Generate**: Concatenate retrieved snippets and pass them to Ollama to generate a context-grounded response.
+4. **Generate**: Concatenate retrieved snippets and pass them to Ollama to generate a context-grounded answer.
 
 ## 5. Project Modules
 - **add.py**: Insert text documents and their embeddings into the database.  
-- **brain.py**: Core RAG logic — retrieves relevant documents and generates responses (`query_postgresql`, `generate_response`).  
+- **brain.py**: Core RAG logic — retrieve relevant documents (`query_postgresql`) and generate responses (`generate_response`).  
 - **delete.py**: Remove documents by ID or custom criteria.  
-- **create_table.py**: Set up the `documents` table schema.  
+- **create_table.py**: Initialize the `documents` table schema.  
 - **config.py**: Load environment variables and initialize database connections and the embedder model.  
 - **chatbot.py**: Tkinter-based GUI for sending user queries and displaying bot responses.
 
@@ -70,7 +77,7 @@ pip install psycopg2 requests numpy tqdm sentence-transformers
 - **RAG Pattern**: Retrieve relevant context → Generate an informed, grounded answer.
 
 ## 7. Getting Started
-- Populate your VectorDB using `add.py`.  
+- Populate your vector database using `add.py`.  
 - Launch the Tkinter chat client with `chatbot.py`.  
 - Ask questions and receive contextually accurate responses in real time.
 
