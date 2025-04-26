@@ -6,6 +6,26 @@ A step-by-step overview of a Retrieve-and-Generate (RAG) chatbot using PostgreSQ
 
 ---
 
+## Requirements
+Before starting, make sure you have the following installed:
+
+- [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) (v14+ recommended)  
+- [Ollama](https://ollama.com/) (for running a local LLM)  
+- Python 3.10+ and the following Python packages:
+  - `psycopg2`
+  - `requests`
+  - `numpy`
+  - `tqdm`
+  - `sentence-transformers` (for embeddings)
+  - `tkinter` (usually bundled with Python)
+
+You can install Python packages with:
+```bash
+pip install psycopg2 requests numpy tqdm sentence-transformers
+```
+
+---
+
 ## 1. Overview
 - Store document embeddings in PostgreSQL with pgvector  
 - Retrieve top-k matches via vector similarity search  
