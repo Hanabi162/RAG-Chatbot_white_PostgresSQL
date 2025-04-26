@@ -6,49 +6,56 @@ A step-by-step overview of a Retrieve-and-Generate (RAG) chatbot using PostgreSQ
 
 ---
 
-## 1. Overview  
+## 1. Overview
 - Store document embeddings in PostgreSQL with pgvector  
-- Retrieve top-k matches by vector similarity  
+- Retrieve top-k matches via vector similarity search  
 - Generate answers using a local Ollama LLM  
-- Interact through a simple Tkinter chat interface  
+- Interact through a simple Tkinter-based chat interface  
 
-## 2. Install pgvector  
-- **Docker**: Pull and run the `pgvector/pgvector` image (bundles PostgreSQL and pgvector).  
+## 2. Install pgvector
+- **Docker**: Pull and run the [`pgvector/pgvector`](https://hub.docker.com/r/pgvector/pgvector/tags) image (bundles PostgreSQL and pgvector).  
 - **Manual**: Clone the [pgvector GitHub repository](https://github.com/pgvector/pgvector) and run `make && make install` to build and install the extension.  
 
-## 3. Enable Extension and Define Schema  
-- Run `CREATE EXTENSION IF NOT EXISTS vector;` in your database.  
-- Create the `documents` table with:  
-  - `id SERIAL PRIMARY KEY`  
-  - `content TEXT`  
-  - `embedding VECTOR(<dimension>)` (e.g., 1024)
+## 3. Enable Extension and Define Schema
+- Enable the extension with:  
+  ```sql
+  CREATE EXTENSION IF NOT EXISTS vector;
+  ```
+- Create a `documents` table:  
+  ```sql
+  CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    content TEXT,
+    embedding VECTOR(<dimension>)  -- e.g., VECTOR(1024)
+  );
+  ```
 
-## 4. RAG Workflow  
-1. **Ingest**: Encode documents into 1024-dimensional float vectors → store in `documents`.  
-2. **Query**: Encode user question into a vector.  
-3. **Search**: Perform nearest-neighbor search using SQL operators (`<->`, `<=>`, `<#>`, `<+>`) to retrieve top-k documents.  
-4. **Generate**: Concatenate retrieved snippets → pass to Ollama → produce a grounded answer.
+## 4. RAG Workflow
+1. **Ingest**: Encode documents into 1024-dimensional float vectors and store them in the `documents` table.  
+2. **Query**: Encode a user’s question into a query vector.  
+3. **Search**: Perform a nearest-neighbor search using SQL operators (`<->`, `<=>`, `<#>`, `<+>`) to find the top-k matching documents.  
+4. **Generate**: Concatenate retrieved snippets and pass them to Ollama to generate a context-grounded response.
 
-## 5. Project Modules  
-- **add.py**: Insert text documents and embeddings into the database.  
-- **brain.py**: Core logic for document retrieval (`query_postgresql`) and LLM generation (`generate_response`).  
-- **delete.py**: Utility to remove documents by ID or criteria.  
-- **create_table.py**: Script to initialize the `documents` table schema.  
-- **config.py**: Load database credentials from environment variables; initialize `psycopg2` connection and embedding model.  
-- **chatbot.py**: Tkinter GUI for chat interaction, sending user queries and displaying bot responses.
+## 5. Project Modules
+- **add.py**: Insert text documents and their embeddings into the database.  
+- **brain.py**: Core RAG logic — retrieves relevant documents and generates responses (`query_postgresql`, `generate_response`).  
+- **delete.py**: Remove documents by ID or custom criteria.  
+- **create_table.py**: Set up the `documents` table schema.  
+- **config.py**: Load environment variables and initialize database connections and the embedder model.  
+- **chatbot.py**: Tkinter-based GUI for sending user queries and displaying bot responses.
 
-## 6. Key Concepts  
-- **Vector Storage**: pgvector allows efficient storage and indexing of high-dimensional arrays.  
-- **Similarity Search**: SQL operators calculate distances (L2, cosine, inner-product, L1) between vectors.  
-- **RAG Pattern**: Retrieve relevant context → Generate an informed answer.
+## 6. Key Concepts
+- **Vector Storage**: pgvector enables efficient storage and indexing of high-dimensional arrays.  
+- **Similarity Search**: SQL operators calculate distances (Euclidean, cosine, inner-product, or Manhattan) between vectors.  
+- **RAG Pattern**: Retrieve relevant context → Generate an informed, grounded answer.
 
-## 7. Getting Started  
+## 7. Getting Started
 - Populate your VectorDB using `add.py`.  
-- Launch the chat client with `chatbot.py`.  
-- Ask questions and receive context-aware responses in real time.
+- Launch the Tkinter chat client with `chatbot.py`.  
+- Ask questions and receive contextually accurate responses in real time.
 
 ---
 
-This project demonstrates a clean and modular RAG architecture using fully local components — ideal for building private, efficient, and extensible AI chatbots.
+This project demonstrates a clean, modular RAG architecture using fully local components — ideal for building private, efficient, and extensible AI chatbots.
 
 ---
